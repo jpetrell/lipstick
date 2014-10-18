@@ -20,6 +20,9 @@ class LipstickCompositorStub : public StubBase {
   virtual void retainedSelectionReceived(QMimeData *mimeData);
   virtual int windowCount() const;
   virtual int ghostWindowCount() const;
+  virtual int activeTouches() const;
+  virtual bool event(QEvent *);
+
   virtual bool homeActive() const;
   virtual void setHomeActive(bool);
   virtual void setFullscreenSurface(QWaylandSurface *surface);
@@ -62,6 +65,7 @@ void LipstickCompositorStub::LipstickCompositorConstructor() {
 void LipstickCompositorStub::LipstickCompositorDestructor() {
 
 }
+
 LipstickCompositor * LipstickCompositorStub::instance() {
   stubMethodEntered("instance");
   return stubReturnValue<LipstickCompositor *>("instance");
@@ -170,6 +174,18 @@ void LipstickCompositorStub::clearKeyboardFocus() {
 
 void LipstickCompositorStub::setDisplayOff() {
   stubMethodEntered("setDisplayOff");
+}
+
+int LipstickCompositorStub::activeTouches() const {
+    stubMethodEntered("activeTouches");
+    return stubReturnValue<int>("activeTouches");
+}
+
+bool LipstickCompositorStub::event(QEvent *event) {
+    QList<ParameterBase*> params;
+    params.append(new Parameter<QEvent *>(event));
+    stubMethodEntered("event", params);
+    return stubReturnValue<QEvent *>("event");
 }
 
 LipstickCompositorProcWindow * LipstickCompositorStub::mapProcWindow(const QString &title, const QString &category, const QRect &rect) {
@@ -365,6 +381,16 @@ void LipstickCompositor::clearKeyboardFocus() {
 
 void LipstickCompositor::setDisplayOff() {
   gLipstickCompositorStub->setDisplayOff();
+}
+
+int LipstickCompositor::activeTouches() const
+{
+  return gLipstickCompositorStub->activeTouches();
+}
+
+bool LipstickCompositor::event(QEvent *event)
+{
+  return gLipstickCompositorStub->event(event);
 }
 
 LipstickCompositorProcWindow * LipstickCompositor::mapProcWindow(const QString &title, const QString &category, const QRect &rect) {

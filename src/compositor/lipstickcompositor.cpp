@@ -36,7 +36,7 @@
 LipstickCompositor *LipstickCompositor::m_instance = 0;
 
 LipstickCompositor::LipstickCompositor()
-: QWaylandQuickCompositor(this), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
+: QWaylandQuickCompositor(this), m_activeTouches(0), m_totalWindowCount(0), m_nextWindowId(1), m_homeActive(true), m_shaderEffect(0),
   m_fullscreenSurface(0), m_directRenderingActive(false), m_topmostWindowId(0), m_screenOrientation(Qt::PrimaryOrientation), m_sensorOrientation(Qt::PrimaryOrientation), m_displayState(new MeeGo::QmDisplayState(this)), m_retainedSelection(0), m_previousDisplayState(m_displayState->get()), m_updatesEnabled(true), m_onUpdatesDisabledUnfocusedWindowId(0)
 {
     setColor(Qt::black);
@@ -333,6 +333,31 @@ QWaylandSurfaceView *LipstickCompositor::createView(QWaylandSurface *surface)
 static LipstickCompositorWindow *surfaceWindow(QWaylandSurface *surface)
 {
     return surface->views().isEmpty() ? 0 : static_cast<LipstickCompositorWindow *>(surface->views().first());
+}
+
+int LipstickCompositor::activeTouches() const
+{
+    return m_activeTouches;
+}
+
+bool LipstickCompositor::event(QEvent *event)
+{
+    if (event->type() == QEvent::TouchBegin
+            || event->type() == QEvent::TouchEnd
+            || event->type() == QEvent::TouchCancel) {
+
+        int numTouches = 0;
+        QTouchEvent *touchEvent = static_cast<QTouchEvent *>(event);
+        foreach(const QTouchEvent::TouchPoint &tp, touchEvent->touchPoints()) {
+            if (tp.state() != Qt::TouchPointReleased) ++numTouches;
+        }
+
+        if (numTouches != m_activeTouches) {
+            m_activeTouches = numTouches;
+            emit activeTouchesChanged();
+        }
+    }
+    return QQuickWindow::event(event);
 }
 
 void LipstickCompositor::onSurfaceDying()

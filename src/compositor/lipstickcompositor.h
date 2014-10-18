@@ -48,6 +48,7 @@ class LIPSTICK_EXPORT LipstickCompositor : public QQuickWindow, public QWaylandQ
     Q_PROPERTY(QObject* clipboard READ clipboard CONSTANT)
     Q_PROPERTY(QVariant orientationLock READ orientationLock NOTIFY orientationLockChanged)
     Q_PROPERTY(bool displayDimmed READ displayDimmed NOTIFY displayDimmedChanged)
+    Q_PROPERTY(int activeTouches READ activeTouches NOTIFY activeTouchesChanged)
 
 public:
     LipstickCompositor();
@@ -63,6 +64,7 @@ public:
 
     int windowCount() const;
     int ghostWindowCount() const;
+    int activeTouches() const;
 
     bool homeActive() const;
     void setHomeActive(bool);
@@ -114,6 +116,7 @@ signals:
     void availableWinIdsChanged();
 
     void homeActiveChanged();
+    void activeTouchesChanged();
     void fullscreenSurfaceChanged();
     void directRenderingActiveChanged();
     void topmostWindowIdChanged();
@@ -127,6 +130,8 @@ signals:
     void displayAboutToBeOn();
     void displayAboutToBeOff();
 
+protected:
+    virtual bool event(QEvent *);
 private slots:
     void surfaceMapped();
     void surfaceUnmapped();
@@ -170,6 +175,8 @@ private:
     QQmlComponent *shaderEffectComponent();
 
     static LipstickCompositor *m_instance;
+
+    int m_activeTouches;
 
     int m_totalWindowCount;
     QHash<int, LipstickCompositorWindow *> m_mappedSurfaces;
