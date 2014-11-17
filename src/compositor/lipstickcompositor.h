@@ -129,6 +129,7 @@ signals:
     void displayOff();
     void displayAboutToBeOn();
     void displayAboutToBeOff();
+    void cancelPeek();
 
 protected:
     virtual bool event(QEvent *);
